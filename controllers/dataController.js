@@ -1,5 +1,7 @@
 const db = require('../util/database');
 const verifyToken = require('./authController').verifyToken;
+const MonthDataObj = require('../models/MonthData');
+
 
 
 const queryRunner = (_query) => {
@@ -13,36 +15,40 @@ const queryRunner = (_query) => {
 
 
 const queryBuilder = (_userId) => {
-    let query = "SELECT comp_id, month, year, sales, sales_growth, sales_ytd,";
-    query += " catering, catering_growth, catering_ytd, food_cost, food_cost_p,";
-    query += " labor_cost, labor_cost_p, sampling, overring, bonus, bonus_dm";
-    query += " FROM month_data";
-    query += " JOIN user ON month_data.comp_id = user.user_company";
-    query += " WHERE month_data_type = 1";
+    let query = "SELECT user.user_name, md.comp_id, md.month, md.year, md.sales, md.sales_growth, md.sales_ytd,";
+    query += " md.catering, md.catering_growth, md.catering_ytd, md.food_cost, md.food_cost_p,";
+    query += " md.labor_cost, md.labor_cost_p, md.sampling, md.overring, md.bonus, md.bonus_dm";
+    query += " FROM month_data md";
+    query += " JOIN user ON md.comp_id = user.user_company";
+    query += " WHERE md.month_data_type = 1";
     if (_userId !== null) query += " AND user.user_id = " + _userId;
-    query += " ORDER BY comp_id, year DESC, month DESC";
+    query += " ORDER BY md.comp_id, md.year DESC, md.month DESC";
 
     return query;
 }
 
-const resultFormatter = _response => {
-    // Extract the data element from response
-    const result = _response[0];
-    const data = {};
-    // Every 
-    for (row of result) {
-        if (!data[row['comp_name']]) data[row['comp_name']] = []
-        data[row['comp_name']].push(row);
+const resultFormatter = (userId, result) => {
+    const rawData = result[0];
+    let data = [];
+    if (userId === 1000) {
+
+    } else {
+        for (month of rawData){
+            const DataObj = new MonthDataObj(month);
+            data.push(DataObj.createJSONObject());
+        }
     }
     return data;
+
 }
 
 const fetchData = (reqData) => {
-    //let data;
+    let userId;
     // Define the query
     return new Promise(resolve => {
         verifyToken(reqData.token)
-            .then(userId => {
+            .then(_userId => {
+                userId = _userId;
                 const dataQuery = queryBuilder(userId);
                 if (userId > 0) {
                     return queryRunner(dataQuery);
@@ -50,10 +56,10 @@ const fetchData = (reqData) => {
                     resolve(false);
                 }
             })
-            .then(data => {
+            .then(resData => {
                 // Format the result
-                //const result = resultFormatter(data);
-                resolve(data[0]);
+                const result = resultFormatter(userId, resData);
+                resolve(result);
             })
             .catch(err => {
                 console.log(err);
