@@ -29,13 +29,14 @@ const queryBuilder = (_userId) => {
 
 const resultFormatter = (userId, result) => {
     const rawData = result[0];
-    let data = [];
+    let data = {};
     if (userId === 1000) {
 
     } else {
-        for (month of rawData){
-            const DataObj = new MonthDataObj(month);
-            data.push(DataObj.createJSONObject());
+        for (monthData of rawData){
+            const DataObj = new MonthDataObj(monthData);
+            const month = DataObj.getMonth();
+            data[month] = DataObj.createJSONObject();
         }
     }
     return data;

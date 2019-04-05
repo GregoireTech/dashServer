@@ -1,46 +1,52 @@
+const MonthMappingTable = {
+    1: "Jan",
+    2: "Feb",
+    3: "Mar",
+    4: "Apr",
+    5: "May",
+    6: "Jun",
+    7: "Jul",
+    8: "Aug",
+    9: "Sep",
+    10: "Oct",
+    11: "Nov",
+    12: "Dec",
+}
 
 class MonthData {
-    constructor(rawData){
+    constructor(rawData) {
         this.rawData = rawData;
-        this.monthMappingTable = {
-            1: "Jan",
-            2: "Feb",
-            3: "Mar",
-            4: "Apr",
-            5: "May",
-            6: "Jun",
-            7: "Jul",
-            8: "Aug",
-            9: "Sep",
-            10: "Oct",
-            11: "Nov",
-            12: "Dec",
-        }
+        this.month = this.createMonthString(rawData.month, rawData.year)
+
     }
-    createMonthString(month, year){
-        return `${this.monthMappingTable[month]} ${year}`;
+    createMonthString(month, year) {
+        return `${MonthMappingTable[month]} ${year}`;
     }
 
 
-    createJSONObject(){
+    createJSONObject() {
         const JSONObj = {
-            "Month": this.createMonthString(this.rawData.month, this.rawData.year),
-            "Sales": this.rawData.sales || "No Data",
-            "Growth": this.rawData.sales_growth/100 || "No Data",
-            "SalesYTD": this.rawData.sales_ytd || "No Data",
-            "Catering": this.rawData.catering || "No Data",
-            "CateringP": this.rawData.catering_growth/100 || "No Data",
-            "CateringYTD": this.rawData.catering_ytd || "No Data",
-            "FoodCost": this.rawData.food_cost || "No Data",
-            "FoodCostP": this.rawData.food_cost_p/100 || "No Data",
-            "LaborCost": this.rawData.labor_cost || "No Data",
-            "LaborCostP": this.rawData.labor_cost_p/100 || "No Data",
-            "Sampling": this.rawData.sampling || "No Data",
-            "Bonus": this.rawData.bonus || "No Data",
-            "BonusDM": this.rawData.bonus_dm || "No Data",
+            "Month": this.month,
+            "Sales": this.rawData.sales || "",
+            "Growth": this.rawData.sales_growth / 100 || "",
+            "SalesYTD": this.rawData.sales_ytd || "",
+            "Catering": this.rawData.catering || "",
+            "CateringP": this.rawData.catering_growth / 100 || "",
+            "CateringYTD": this.rawData.catering_ytd || "",
+            "FoodCost": this.rawData.food_cost || "",
+            "FoodCostP": this.rawData.food_cost_p / 100 || "",
+            "LaborCost": this.rawData.labor_cost || "",
+            "LaborCostP": this.rawData.labor_cost_p / 100 || "",
+            "Sampling": this.rawData.sampling || "",
+            "Bonus": this.rawData.bonus || "",
+            "BonusDM": this.rawData.bonus_dm || "",
             "Company": this.rawData.user_name
         }
         return JSONObj;
+    }
+
+    getMonth() {
+        return this.month;
     }
 }
 
