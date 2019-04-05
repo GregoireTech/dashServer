@@ -1,7 +1,8 @@
 const express = require('express');
 
-const getData = require('./controllers/queryBuilder');
+const fetchData = require('./controllers/dataController');
 const handleLogin = require('./controllers/authController').login;
+const verifyToken = require('./controllers/authController').verifyToken;
 
 const app = express();
 
@@ -15,31 +16,92 @@ app.use((req, res, next) => {
 
 
 
-
 // Set the main route
-app.post('/data', (req, res) => {
-    console.log(req.query);
+app.get('/data', (req, res) => {
+    const reqData = req.query;
     try {
-        getData(req, res);
+        fetchData(reqData)
+            .then(data => {
+                if (data) {
+                    res.send({
+                        status: true,
+                        data: data
+                    });
+                } else {
+                    res.send({
+                        status: false,
+                        data: null
+                    });
+                }
+            })
+            .catch(e => {
+                console.error(e);
+                res.send({
+                    error: e
+                });
+            });
+
     } catch (e) {
         console.error(e);
+        res.send({
+            error: e
+        });
     }
-    console.log('login');
 });
 
-app.post('/login', (req, res) => {
-    console.log(req.query);
+app.get('/login', (req, res) => {
+    const reqData = req.query;
+    console.log('req data: ' + reqData)
     try {
-        handleLogin(req, res);
+        if (reqData.token) {
+            console.log('verify token')
+            verifyToken(reqData.token)
+                .then(userId => {
+                    if (userId > 0) {
+                        res.send({
+                            authStatus: true,
+                            token: reqData.token
+                        });
+                    } else {
+                        res.send({
+                            authStatus: false,
+                            token: reqData.token
+                        });
+                    }
+                })
+                .catch(e => console.log(e));
+        } else if (reqData.user && reqData.pass) {
+            console.log('handle login');
+            handleLogin(req)
+                .then(token => {
+                    console.log('got token : ' + token);
+                    if (token !== '') {
+                        res.send({
+                            authStatus: true,
+                            token: token
+                        });
+                    } else {
+                        res.send({
+                            authStatus: false,
+                            token: token
+                        });
+                    }
+                })
+        } else {
+            console.log('Impossible to handle login, data incomplete. ');
+            res.send({
+                authStatus: false,
+                token: ''
+            });
+        }
     } catch (e) {
         console.error(e);
+        res.send({
+            token: false
+        });
     }
-    console.log('login');
 });
 
-app.post('/', (req, res) => {
-    getData(req, res);
-});
 
 app.listen(8888, () => {
     console.log('listening at : http://localhost:8888');
