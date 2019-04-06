@@ -1,4 +1,5 @@
 const express = require('express');
+const PORT = process.env.PORT || 8888;
 
 const fetchData = require('./controllers/dataController');
 const handleLogin = require('./controllers/authController').login;
@@ -102,6 +103,6 @@ app.get('/login', (req, res) => {
 });
 
 
-app.listen(8888, () => {
-    console.log('listening at : http://localhost:8888');
+app.listen(PORT, () => {
+    console.log('listening at : ' + PORT);
 });
