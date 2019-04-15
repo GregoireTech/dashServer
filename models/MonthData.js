@@ -40,6 +40,7 @@ class MonthData {
             "Sampling": this.rawData.sampling,
             "Bonus": this.rawData.bonus,
             "BonusDM": this.rawData.bonus_dm,
+            "Objective": this.rawData.month_obj,
             "Company": this.rawData.user_name
         }
         return JSONObj;

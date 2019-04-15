@@ -17,7 +17,7 @@ const queryRunner = (_query) => {
 const queryBuilder = (_userId, adminMode) => {
     let query = "SELECT user.user_name, md.comp_id, md.month, md.year, md.sales, md.sales_growth, md.sales_ytd,";
     query += " md.catering, md.catering_growth, md.catering_ytd, md.food_cost, md.food_cost_p,";
-    query += " md.labor_cost, md.labor_cost_p, md.sampling, md.overring, md.bonus, md.bonus_dm";
+    query += " md.labor_cost, md.labor_cost_p, md.sampling, md.overring, md.bonus, md.bonus_dm, md.month_obj";
     query += " FROM month_data md";
     query += " JOIN user ON md.comp_id = user.user_company";
     query += " WHERE md.month_data_type = 1";
@@ -35,7 +35,7 @@ const leadQueryBuilder = (_userId, adminMode) => {
     if (adminMode && _userId === 1000) {
         query += "SELECT 'Leadership' AS user_name, md.month, md.year, SUM(md.sales) AS sales, avg(md.sales_growth) AS sales_growth, SUM(md.sales_ytd) AS sales_ytd, SUM(md.catering) AS catering," ;
         query += " AVG(md.catering_growth) AS catering_growth, SUM(md.catering_ytd) AS catering_ytd, SUM(md.food_cost) AS food_cost, AVG(md.food_cost_p) AS food_cost_p, SUM(md.labor_cost) AS labor_cost,";
-        query += " AVG(md.labor_cost_p) AS labor_cost_p, SUM(md.sampling) AS sampling, SUM(md.overring) AS overring, SUM(md.bonus) AS bonus, SUM(md.bonus_dm) AS bonus_dm";
+        query += " AVG(md.labor_cost_p) AS labor_cost_p, SUM(md.sampling) AS sampling, SUM(md.overring) AS overring, SUM(md.bonus) AS bonus, SUM(md.bonus_dm) AS bonus_dm, SUM(md.month_obj) AS month_obj";
         query += " FROM month_data md";
         query += " WHERE md.month_data_type = 1";
         query += " GROUP BY md.month, md.year";
