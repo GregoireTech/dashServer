@@ -80,6 +80,11 @@ const verifyTokenHandler = (token) => {
     });
 }
 
+const googleHandler = (profile) => {
+    console.log(profile);
+}
+
 
 exports.verifyToken = verifyTokenHandler;
 exports.login = loginHandler;
+exports.googleHandler = googleHandler;
