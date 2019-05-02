@@ -1,4 +1,4 @@
 module.exports = {
-    googleClientID: '841651293968-0nsbu326blsv04d1es5n5gapb7g90hna.apps.googleusercontent.com',
-    googleClientSecret: 'vN2-TXySpXjdcBF0TNNiRoBo'
+    googleClientID: '416812458984-ra99mkq4jhe0m94n3s0un73dqo8ba9ds.apps.googleusercontent.com',
+    googleClientSecret: 'uWUm9zaY-Nfrxus8xl1stg9h'
 }

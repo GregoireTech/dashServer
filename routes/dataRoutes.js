@@ -1,37 +1,47 @@
-const fetchData = require('../controllers/dataController');
+const fetchData = require('../controllers/dataController').fetchData;
+const getEmailFromToken = require('../controllers/authController').getEmailFromToken;
 
 module.exports = (app) => {
-
-    app.get('/data', (req, res) => {
-        const reqData = req.query;
+    let resData = {
+        status: false,
+        message: 'Unvalid token' 
+    };
+    app.post('/api/data', (req, res) => {
+        // Define auth as declined by default
         try {
-            fetchData(reqData)
-                .then(data => {
-                    if (data) {
-                        res.send({
-                            status: true,
-                            data: data
-                        });
-                    } else {
-                        res.send({
-                            status: false,
-                            data: null
-                        });
-                    }
-                })
-                .catch(e => {
-                    console.error(e);
-                    res.send({
-                        error: e
-                    });
-                });
-
-        } catch (e) {
-            console.error(e);
-            res.send({
-                error: e
-            });
+            //console.log(req.body)
+            const tokenType = typeof(req.body.tokenObj.id_token);
+            console.log(tokenType)
+            if (tokenType === 'string'){
+                token = req.body.tokenObj.id_token;
+            } else {
+                res.send({resData});
+                return;
+            }
+        } catch (e){
+            console.log('impossible to retrieve token from FE request body');
+            res.send({resData});
+            return;
         }
-    });
-
+        if (token){
+            getEmailFromToken(token)
+            .then(email => {
+                console.log('got email : ' + email)
+                return fetchData(email)
+            })
+            .then(resultData => {
+                console.log('got the data to send: ' + resultData)
+                res.send({resultData});
+            })
+            .catch(e => {
+                console.log(e);
+                res.send({resData});
+            })
+        }
+    })
 }
+
+
+
+
+

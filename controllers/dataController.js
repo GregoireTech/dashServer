@@ -1,5 +1,5 @@
 const db = require('../util/database');
-const verifyToken = require('./authController').verifyToken;
+const getEmailFromToken = require('./authController').getEmailFromToken;
 const MonthDataObj = require('../models/MonthData');
 
 
@@ -14,15 +14,15 @@ const queryRunner = (_query) => {
 }
 
 
-const queryBuilder = (_userId, adminMode) => {
+const queryBuilder = (_email, adminMode) => {
     let query = "SELECT user.user_name, md.comp_id, md.month, md.year, md.sales, md.sales_growth, md.sales_ytd,";
     query += " md.catering, md.catering_growth, md.catering_ytd, md.food_cost, md.food_cost_p,";
     query += " md.labor_cost, md.labor_cost_p, md.sampling, md.overring, md.bonus, md.bonus_dm, md.month_obj";
     query += " FROM month_data md";
     query += " JOIN user ON md.comp_id = user.user_company";
     query += " WHERE md.month_data_type = 1";
-    if (!(adminMode && _userId === 1000)) {
-        query += " AND user.user_id = " + _userId;
+    if (!(adminMode)) {
+        query += " AND user.user_email = " + _userId;
     } 
     query += " ORDER BY md.comp_id, md.year DESC, md.month DESC";
 
@@ -80,44 +80,63 @@ const resultFormatter = (userId, result, leadResult) => {
     return data;
 
 }
+const getUserInfoFromEmail = (email, infoType) => {
+    return new Promise (resolve => {
+        const query = `SELECT ${infoType} FROM user WHERE user.user_email = '${email}'`;
+        queryRunner(query)
+        .then(result => {
+            
+            console.log(result[0][0][infoType]);
+            console.log('in getuserinfo')
+            resolve(result[0][0][infoType])
+        })
+    })
+}
 
-const fetchData = (reqData) => {
+const fetchData = (email) => {
     let userId,
     data,
     rawData;
     // Define the query
     return new Promise(resolve => {
-        verifyToken(reqData.token)
-            .then(_userId => {
-                userId = _userId;
-                const dataQuery = queryBuilder(userId, true);
-                if (userId > 0) {
-                    return queryRunner(dataQuery);
-                } else {
-                    resolve(false);
-                }
-            })
-            .then(resData => {
-                // Format the result
-                if (userId === 1000){
-                    rawData = resData;
-                    const leadDataquery = leadQueryBuilder(userId, true);
-                    return queryRunner(leadDataquery);
-                } 
-                data = resultFormatter(userId, resData);
-                resolve(data);
-            })
-            .then(resLeadData => {
-                data = resultFormatter(userId,rawData, resLeadData);
-                resolve(data);
-            })
-            .catch(err => {
-                console.log(err);
+        getUserInfoFromEmail(email, 'user_id')
+        .then(_userId => {
+            console.log('user id : ' + _userId)
+            userId = _userId;
+            const dataQuery = queryBuilder(userId, true);
+            if (userId > 0) {
+                return queryRunner(dataQuery);
+            } else {
                 resolve(false);
-            });
-    });
+            }
+        })
+        .then(resData => {
+            // Format the result
+            if (userId === 1000){
+                rawData = resData;
+                const leadDataquery = leadQueryBuilder(userId, true);
+                return queryRunner(leadDataquery);
+            } 
+            data = resultFormatter(userId, resData);
+            resolve(data);
+        })
+        .then(resLeadData => {
+            data = resultFormatter(userId,rawData, resLeadData);
+            resolve(data);
+        })
+        .catch(err => {
+            console.log(err);
+            resolve(false);
+        });
+    })
 }
 
 
+const getDataFromEmail = (email) => {
+    return new Promise (resolve => {
+        getUserInfoFromEmail(email, 'USER_ID')
+    })
+}
 
-module.exports = fetchData;
+exports.fetchData = fetchData;
+exports.getDataFromEmail = getDataFromEmail;
