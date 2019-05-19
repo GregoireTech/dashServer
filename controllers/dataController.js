@@ -33,11 +33,24 @@ const leadQueryBuilder = (_userId, adminMode) => {
     let query = "";
 
     if (adminMode && _userId === 1000) {
-        query += "SELECT 'Leadership' AS user_name, md.month, md.year, SUM(md.sales) AS sales, avg(md.sales_growth) AS sales_growth, SUM(md.sales_ytd) AS sales_ytd, SUM(md.catering) AS catering," ;
-        query += " AVG(md.catering_growth) AS catering_growth, SUM(md.catering_ytd) AS catering_ytd, SUM(md.food_cost) AS food_cost, AVG(md.food_cost_p) AS food_cost_p, SUM(md.labor_cost) AS labor_cost,";
-        query += " AVG(md.labor_cost_p) AS labor_cost_p, SUM(md.sampling) AS sampling, SUM(md.overring) AS overring, SUM(md.bonus) AS bonus, SUM(md.bonus_dm) AS bonus_dm, SUM(md.month_obj) AS month_obj";
+        query += "SELECT 'Leadership' AS user_name,";
+        query += " md.month, md.year,";
+        query += " SUM(md.sales) AS sales,";
+        query += " ROUND(((sales - month_obj)/month_obj)*100  ,1) AS sales_growth,";
+        query += " SUM(md.sales_ytd) AS sales_ytd,";
+        query += " SUM(md.catering) AS catering," ;
+        query += " AVG(md.catering_growth) AS catering_growth,";
+        query += " SUM(md.catering_ytd) AS catering_ytd,";
+        query += " SUM(md.food_cost) AS food_cost,";
+        query += " ROUND((food_cost/sales)*100, 1) AS food_cost_p,";
+        query += " SUM(md.labor_cost) AS labor_cost,";
+        query += " ROUND((labor_cost/sales)*100, 1) AS labor_cost_p,";
+        query += " SUM(md.sampling) AS sampling, SUM(md.overring) AS overring,";
+        query += " SUM(md.bonus) AS bonus, SUM(md.bonus_dm) AS bonus_dm,";
+        query += " SUM(md.month_obj) AS month_obj";
         query += " FROM month_data md";
         query += " WHERE md.month_data_type = 1";
+        query += " AND md.comp_id IN (SELECT user.user_company FROM user WHERE user.user_name != 'Leadership')";
         query += " GROUP BY md.month, md.year";
         query += " ORDER BY md.year DESC , md.month DESC;";
     } 
